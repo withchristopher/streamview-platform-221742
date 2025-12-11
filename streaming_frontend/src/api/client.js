@@ -61,21 +61,48 @@ export const Api = {
   async listVideos(params = {}) {
     /**
      * GET /videos
-     * Returns either an array or an object like { items: [], total: n }
+     * Query params:
+     *  - q: optional search query
+     *  - category_id: optional category identifier
+     *
+     * Returns either an array or an object like { items: [], total: n }.
      */
-    return api.get("/videos", { params }).then((r) => r.data);
+    const normalizedParams = {};
+    if (params.q) {
+      normalizedParams.q = params.q;
+    }
+    if (params.category_id) {
+      // Already in expected shape from callers.
+      normalizedParams.category_id = params.category_id;
+    } else if (params.category) {
+      // Backwards compatibility: map legacy "category" field to "category_id".
+      normalizedParams.category_id = params.category;
+    }
+    return api
+      .get("/videos", { params: normalizedParams })
+      .then((r) => r.data);
   },
   async getCategories() {
+    /**
+     * GET /categories
+     * Expected to return a list of category objects like:
+     *   { id, name } or { id, title }
+     */
     return api.get("/categories").then((r) => r.data);
   },
   async getVideoById(id) {
+    /**
+     * GET /videos/{id}
+     */
     return api.get(`/videos/${id}`).then((r) => r.data);
   },
 
-  /** Optional helper: construct a playable URL if backend exposes /videos/:id/stream */
+  /** PUBLIC_INTERFACE
+   * Construct a playable URL using the backend /stream/{id} endpoint.
+   */
   getStreamUrlFor(id) {
     const base = getApiBaseUrl();
-    return `${base}/videos/${id}/stream`;
+    return `${base}/stream/${id}`;
   },
 };
 

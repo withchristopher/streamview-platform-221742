@@ -4,9 +4,10 @@ import VideoPlayerModal from "../components/VideoPlayerModal";
 import { useState } from "react";
 import useVideos from "../hooks/useVideos";
 
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 export default function Home() {
-  const { videos, categories, setQuery, setCategory, loading, error } = useVideos();
+  const { videos, categories, setQuery, setCategory, loading, error } =
+    useVideos();
   const [playing, setPlaying] = useState(null);
 
   return (

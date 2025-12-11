@@ -1,5 +1,5 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Api } from "../api/client";
 
 // PUBLIC_INTERFACE
@@ -8,7 +8,13 @@ export default function VideoPlayerModal({ open, onClose, video }) {
    * Simple modal overlay that renders video element or external src.
    * Hooks must be called unconditionally; compute derived values first,
    * then return null early based on `open`.
+   *
+   * Primary stream source is the backend /stream/{id} endpoint via
+   * Api.getStreamUrlFor(video.id). If the video fails to load, a
+   * lightweight error state is shown instead of a blank player.
    */
+  const [loadError, setLoadError] = useState(false);
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape" && open) onClose && onClose();
@@ -16,6 +22,13 @@ export default function VideoPlayerModal({ open, onClose, video }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // Reset error when video or open state changes
+  useEffect(() => {
+    if (open) {
+      setLoadError(false);
+    }
+  }, [open, video]);
 
   // Compute candidate stream URL (always run hooks before any early return)
   const derived = useMemo(() => {
@@ -29,7 +42,9 @@ export default function VideoPlayerModal({ open, onClose, video }) {
   if (!open) return null;
 
   const title = video?.title || "Now Playing";
-  const src = video?.stream_url || video?.url || derived || "";
+
+  // Prefer backend stream endpoint; fallback to any explicit URLs
+  const src = derived || video?.stream_url || video?.url || "";
 
   return (
     <div
@@ -49,15 +64,28 @@ export default function VideoPlayerModal({ open, onClose, video }) {
           </button>
         </div>
         <div className="relative aspect-video bg-black">
-          {src ? (
-            <video controls className="w-full h-full">
+          {!src ? (
+            <div className="w-full h-full grid place-items-center text-white/80">
+              No stream URL available for this video.
+            </div>
+          ) : loadError ? (
+            <div className="w-full h-full grid place-items-center text-white/80 px-4 text-center">
+              <div>
+                <p className="font-medium mb-1">Unable to load video.</p>
+                <p className="text-sm text-gray-300">
+                  Please try again in a moment, or choose another title.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <video
+              controls
+              className="w-full h-full"
+              onError={() => setLoadError(true)}
+            >
               <source src={src} />
               Your browser does not support the video tag.
             </video>
-          ) : (
-            <div className="w-full h-full grid place-items-center text-white/80">
-              No stream URL
-            </div>
           )}
         </div>
       </div>

@@ -6,10 +6,11 @@ import useVideos from "../hooks/useVideos";
 import useAuth from "../hooks/useAuth";
 import { Link } from "react-router-dom";
 
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 export default function Library() {
   const { isAuthenticated } = useAuth();
-  const { videos, categories, setQuery, setCategory, loading, error } = useVideos();
+  const { videos, categories, setQuery, setCategory, loading, error } =
+    useVideos();
   const [playing, setPlaying] = useState(null);
 
   return (

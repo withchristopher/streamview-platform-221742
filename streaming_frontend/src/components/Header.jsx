@@ -4,7 +4,7 @@ import CategoryFilter from "./CategoryFilter";
 import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
 export default function Header({ onSearch, onCategoryChange, categories = [] }) {
   /**
    * Minimalist header with brand, nav, search, and category filter.
