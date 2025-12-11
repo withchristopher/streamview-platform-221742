@@ -1,10 +1,13 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { Api } from "../api/client";
 
 // PUBLIC_INTERFACE
 export default function VideoPlayerModal({ open, onClose, video }) {
   /**
    * Simple modal overlay that renders video element or external src.
+   * Hooks must be called unconditionally; compute derived values first,
+   * then return null early based on `open`.
    */
   useEffect(() => {
     const onKey = (e) => {
@@ -14,11 +17,19 @@ export default function VideoPlayerModal({ open, onClose, video }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Compute candidate stream URL (always run hooks before any early return)
+  const derived = useMemo(() => {
+    const vid = video;
+    if (vid && vid.id != null) {
+      return Api.getStreamUrlFor(vid.id);
+    }
+    return "";
+  }, [video]);
+
   if (!open) return null;
 
   const title = video?.title || "Now Playing";
-  // Prefer video.stream_url or video.url
-  const src = video?.stream_url || video?.url || "";
+  const src = video?.stream_url || video?.url || derived || "";
 
   return (
     <div

@@ -4,7 +4,7 @@ This project provides a minimal React template with a clean, modern UI and minim
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
+- **Lightweight**: No heavy UI frameworks - uses only Tailwind CSS and React
 - **Modern UI**: Clean, responsive design with KAVIA brand styling
 - **Fast**: Minimal dependencies for quick loading times
 - **Simple**: Easy to understand and modify
@@ -27,31 +27,19 @@ Launches the test runner in interactive watch mode.
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-## Customization
+## Backend API configuration
 
-### Colors
+The frontend calls the backend using an Axios client with a base URL determined at runtime:
 
-The main brand colors are defined as CSS variables in `src/App.css`:
+- If `REACT_APP_API_BASE_URL` is set in your environment, it will be used.
+- Otherwise, the app will default to `http(s)://<host>:3001`, which matches the typical backend preview port.
 
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
+To customize, copy `.env.example` to `.env` and set:
+```
+REACT_APP_API_BASE_URL=http://localhost:3001
 ```
 
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
+Authentication tokens (if provided by the backend) are stored in `localStorage` under `token` and automatically sent in the `Authorization: Bearer <token>` header for all requests.
 
 ## Learn More
 

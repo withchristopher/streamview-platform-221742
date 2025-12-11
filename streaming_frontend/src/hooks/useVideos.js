@@ -17,7 +17,7 @@ export function useVideos(initialQuery = "") {
     try {
       const data = await Api.getCategories();
       setCategories(Array.isArray(data) ? data : []);
-    } catch (e) {
+    } catch {
       // silent fail; categories optional
       setCategories([]);
     }
@@ -30,8 +30,18 @@ export function useVideos(initialQuery = "") {
       const params = {};
       if (query) params.q = query;
       if (category) params.category = category;
+
       const data = await Api.listVideos(params);
-      setVideos(Array.isArray(data) ? data : data?.items || []);
+      const items = Array.isArray(data) ? data : data?.items || [];
+      // Normalize minimal fields used in UI
+      const normalized = items.map((v) => ({
+        id: v.id ?? v.video_id ?? v._id ?? v.slug ?? undefined,
+        title: v.title ?? v.name ?? "Untitled",
+        thumbnail: v.thumbnail ?? v.poster ?? v.cover_image ?? undefined,
+        stream_url: v.stream_url ?? v.url ?? undefined,
+        ...v,
+      }));
+      setVideos(normalized);
     } catch (e) {
       setError(e?.response?.data?.detail || "Failed to load videos");
     } finally {

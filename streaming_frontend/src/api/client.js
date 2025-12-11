@@ -40,15 +40,29 @@ api.interceptors.request.use((config) => {
 // PUBLIC_INTERFACE
 export const Api = {
   /** Auth endpoints */
-  async signup(payload) {
-    // expected backend path; adjust if backend differs
-    return api.post("/auth/signup", payload).then((r) => r.data);
+  async signup({ email, password }) {
+    /**
+     * Expected backend path: POST /auth/signup
+     * Payload normalized to { email, password }.
+     * Response expected to contain either { access_token, user } or simple message.
+     */
+    return api.post("/auth/signup", { email, password }).then((r) => r.data);
   },
-  async login(payload) {
-    return api.post("/auth/login", payload).then((r) => r.data);
+  async login({ email, password }) {
+    /**
+     * Expected backend path: POST /auth/login
+     * Payload normalized to { email, password }.
+     * Response expected to contain { access_token, user }.
+     */
+    return api.post("/auth/login", { email, password }).then((r) => r.data);
   },
+
   /** Videos */
   async listVideos(params = {}) {
+    /**
+     * GET /videos
+     * Returns either an array or an object like { items: [], total: n }
+     */
     return api.get("/videos", { params }).then((r) => r.data);
   },
   async getCategories() {
@@ -56,6 +70,12 @@ export const Api = {
   },
   async getVideoById(id) {
     return api.get(`/videos/${id}`).then((r) => r.data);
+  },
+
+  /** Optional helper: construct a playable URL if backend exposes /videos/:id/stream */
+  getStreamUrlFor(id) {
+    const base = getApiBaseUrl();
+    return `${base}/videos/${id}/stream`;
   },
 };
 
